@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
+        body { background-color: #0d121f; color: #ffffff; padding: 12px; font-size: 13px; max-width: 450px; margin: 0 auto; }
+        .card { background: #151d30; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 14px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+        .card-highlight { border: 1px solid rgba(56, 189, 248, 0.3); background: linear-gradient(145deg, #151d30, #0f172a); }
+        .flex { display: flex; align-items: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        
+        .admin-nav { background: linear-gradient(135deg, #10172a, #1e293b); padding: 12px 14px; border-radius: 16px; margin-bottom: 12px; border: 1px solid rgba(56, 189, 248, 0.2); }
+        .header-logo { background: linear-gradient(135deg, #0284c7, #2563eb); width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 10px; box-shadow: 0 4px 12px rgba(37,99,235,0.4); }
+        .badge-version { border: 1px solid #10b981; background: rgba(16, 185, 129, 0.15); color: #34d399; padding: 4px 10px; border-radius: 14px; font-size: 10px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .badge-version-update { border: 1px solid #f43f5e; background: rgba(244, 63, 94, 0.25); color: #f43f5e; box-shadow: 0 0 12px rgba(244, 63, 94, 0.6); animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .dot-green { background: #10b981; box-shadow: 0 0 6px #10b981; }
+        .dot-red { background: #e11d48; box-shadow: 0 0 8px #e11d48; }
+
+        .user-panel-card { background: #141c2e; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+        .user-header { border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 10px; margin-bottom: 12px; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #fff; margin-right: 12px; }
+        .user-details-text { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+        .user-details-text span { color: #f1f5f9; font-weight: 600; }
+
+        .control-box { background: #0c1220; border-radius: 14px; padding: 10px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .control-title { font-size: 10px; font-weight: bold; color: #94a3b8; margin-bottom: 6px; }
+
+        .toggle-pill { width: 62px; height: 30px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; cursor: pointer; transition: all 0.3s; position: relative; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+        .toggle-pill-on { background: #10b981; border: 2px solid #34d399; }
+        .toggle-pill-off { background: #ef4444; border: 2px solid #f87171; }
+        .toggle-knob { width: 22px; height: 22px; background: #ffffff; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.3s; position: absolute; }
+        .knob-on { right: 3px; }
+        .knob-off { left: 3px; }
+        .toggle-text { font-size: 10px; font-weight: 900; color: #ffffff; letter-spacing: 0.5px; }
+        .text-on { margin-left: 8px; }
+        .text-off { margin-left: 26px; }
+
+        .badge-status { padding: 3px 8px; border-radius: 8px; font-size: 9px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; display: inline-block; }
+        .badge-approved { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #10b981; }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid #f59e0b; }
+        .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid #ef4444; }
+
+        .start-btn-container { width: 85px; height: 85px; border-radius: 50%; background: radial-gradient(circle, rgba(225,29,72,0.4) 0%, rgba(15,23,42,0.8) 100%); border: 2px solid #e11d48; box-shadow: 0 0 25px rgba(225, 29, 72, 0.7); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; }
+        .start-btn-running { background: radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(15,23,42,0.8) 100%); border: 2px solid #10b981; box-shadow: 0 0 25px rgba(16, 185, 129, 0.7); }
+        .sub-card { background: #0c1220; border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 12px; }
+        .progress-bar { width: 100%; height: 6px; background: #1e293b; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+        .progress-fill { height: 100%; background: #10b981; width: 85%; box-shadow: 0 0 8px #10b981; }
+        .btn-glow-blue { background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 11px; width: 100%; cursor: pointer; }
+        .btn-glow-purple { background: linear-gradient(135deg, #4c1d95, #2e1065); border: 1px solid #c084fc; color: #c084fc; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 11px; width: 100%; cursor: pointer; }
+        .btn-green { background: #10b981; color: #030712; border: none; padding: 10px 16px; font-weight: bold; border-radius: 12px; cursor: pointer; }
+        .btn-red { background: #be123c; color: #ffffff; border: none; padding: 10px 16px; font-weight: bold; border-radius: 12px; cursor: pointer; }
+        .quick-action-item { background: #0c1220; border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 12px; cursor: pointer; transition: background 0.2s; }
+        .checkbox-container { display: flex; align-items: center; margin: 8px 0; font-size: 13px; cursor: pointer; }
+        .checkbox-container input { width: 18px; height: 18px; margin-right: 8px; accent-color: #10b981; }
+        input[type="text"], input[type="password"], input[type="number"], select { width: 100%; background: #030712; border: 1px solid #1e293b; color: #fff; padding: 12px; border-radius: 12px; outline: none; font-size: 13px; margin-top: 4px; transition: border 0.3s; }
+        input[type="text"]:focus, input[type="number"]:focus { border: 1px solid #38bdf8; box-shadow: 0 0 8px rgba(56,189,248,0.3); }
+        .bottom-nav { background: #10172a; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 20px; padding: 10px; display: flex; justify-content: space-around; margin-top: 10px; }
+        .nav-item { text-align: center; color: #64748b; font-size: 10px; cursor: pointer; }
+        .nav-item.active { color: #38bdf8; font-weight: bold; }
+        .plan-card { background: #090E1F; border-radius: 18px; padding: 12px 8px; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+        .plan-card-green { border: 1px solid #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.2); }
+        .plan-card-blue { border: 1px solid #0284c7; box-shadow: 0 0 10px rgba(2,132,199,0.2); }
+        .plan-card-purple { border: 1px solid #a855f7; box-shadow: 0 0 12px rgba(168,85,247,0.3); }
+        .plan-badge { font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 12px; display: inline-block; margin-bottom: 8px; }
+        .plan-icon { width: 44px; height: 42px; border-radius: 50%; margin: 4px auto 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .plan-feature-list { text-align: left; margin: 10px 0; font-size: 9px; color: #94a3b8; line-height: 1.6; }
+        .plan-feature-list div { display: flex; align-items: center; margin-bottom: 3px; }
+        .plan-feature-list span { color: #34d399; margin-right: 4px; font-weight: bold; }
+        .best-choice-ribbon { position: absolute; top: -10px; right: -6px; background: #eab308; color: #000; font-weight: bold; font-size: 8px; padding: 2px 6px; border-radius: 6px; transform: rotate(12deg); box-shadow: 0 0 6px #eab308; }
+        .upi-badge { background: #1e293b; padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: bold; color: #fff; margin-right: 4px; display: inline-block; }
+        .divider { border-bottom: 1px solid rgba(255,255,255,0.1); margin: 14px 0; position: relative; text-align: center; }
+        .divider-text { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: #0b1329; padding: 0 8px; color: #64748b; font-size: 10px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- LOGIN VIEW -->
+    <div id="loginView">
+        <div class="card" style="padding:20px;">
+            <div class="flex" style="margin-bottom:14px;">
+                <div style="background:#1e293b; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:20px;">🔒</div>
+                <div>
+                    <div style="font-size:18px; font-weight:bold; color:#fff;">பிரீமியம் லாகின்</div>
+                    <div style="color:#64748b; font-size:11px;">ஸ்கிரிப்ட்டைப் பயன்படுத்த அனுமதி தேவை.</div>
+                </div>
+            </div>
+            <label style="color:#38bdf8; font-size:11px; font-weight:bold;">மின்னஞ்சல் (Email ID):</label>
+            <input type="text" id="emailInput" placeholder="உங்கள் மெயில் ஐடி">
+            <label style="color:#38bdf8; font-size:11px; font-weight:bold; margin-top:12px; display:block;">பாஸ்வேர்டு (Password):</label>
+            <input type="password" id="passInput" placeholder="பாஸ்வேர்ட்">
+            
+            <button class="btn-green" style="width:100%; padding:14px; margin-top:16px; font-size:13px;" onclick="doLogin()">➔ LOGIN</button>
+
+            <div class="divider"><span class="divider-text">அல்லது</span></div>
+            <div style="text-align:center; color:#94a3b8; font-size:11px; margin-bottom:8px;">புதிய கணக்கை தொடங்க?</div>
+            <button class="btn-glow-purple" style="padding:12px;" onclick="showRegisterPage()">➕ CREATE NEW ACCOUNT</button>
+
+            <button class="btn-glow-blue" style="margin-top:10px;" onclick="sendToAutoJS('SUPPORT')">🎧 CUSTOMER SUPPORT (TELEGRAM)</button>
+        </div>
+    </div>
+
+    <!-- REGISTER NEW ACCOUNT VIEW -->
+    <div id="registerView" class="hidden">
+        <div class="card" style="padding:20px;">
+            <div class="flex" style="margin-bottom:14px;">
+                <div style="background:#1e293b; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-right:12px; font-size:20px;">📝</div>
+                <div>
+                    <div style="font-size:18px; font-weight:bold; color:#fff;">புதிய கணக்குத் தொடங்கு</div>
+                    <div style="color:#64748b; font-size:11px;">உங்கள் விவரங்களை பதிவு செய்யுங்கள்.</div>
+                </div>
+            </div>
+            <label style="color:#38bdf8; font-size:11px; font-weight:bold;">மின்னஞ்சல் (Email ID):</label>
+            <input type="text" id="regEmailInput" placeholder="உங்கள் மெயில் ஐடி">
+            <label style="color:#38bdf8; font-size:11px; font-weight:bold; margin-top:12px; display:block;">பாஸ்வேர்டு (Password):</label>
+            <input type="password" id="regPassInput" placeholder="புதிய பாஸ்வேர்ட்">
+            
+            <label style="color:#38bdf8; font-size:11px; font-weight:bold; margin-top:12px; display:block;">வாகன வகை (Vehicle Type):</label>
+            <select id="regVehicleInput">
+                <option value="Auto">🛺 Auto (ஆட்டோ)</option>
+                <option value="Bike">🏍️ Bike (பைக்)</option>
+                <option value="Cab">🚗 Cab / Car (கார்)</option>
+            </select>
+
+            <div style="color:#f59e0b; font-size:11px; font-weight:bold; margin: 12px 0;">⚠️ பதிவு செய்த பின் அட்மினின் அனுமதி தேவைப்படும்.</div>
+            <div class="grid-2">
+                <button class="btn-red" onclick="showLoginPage()">⬅️ BACK</button>
+                <button class="btn-green" onclick="doRegister()">SUBMIT ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WAIT VIEW -->
+    <div id="waitView" class="hidden">
+        <div class="card" style="text-align:center; padding:24px;">
+            <div style="font-size:36px; margin-bottom:8px;">⏳</div>
+            <div style="font-size:18px; font-weight:bold; color:#fff;">கணக்கு சரிபார்ப்பு</div>
+            <div style="color:#f59e0b; font-size:12px; font-weight:bold; margin:4px 0 12px;">Server Verification In Progress</div>
+            <div style="color:#94a3b8; font-size:11px; margin-bottom:16px;">உங்கள் கணக்கு அட்மின் சரிபார்ப்பில் உள்ளது. அனுமதி வழங்கப்பட்ட பின் கீழே உள்ள CHECK STATUS பட்டனை அழுத்தவும்.</div>
+            <div style="background:#1e0a0a; border:1px solid #f43f5e; padding:10px; border-radius:12px; margin-bottom:16px; color:#f43f5e; font-size:11px; font-weight:bold;">தற்போதைய நிலை: சர்வர் அனுமதி நிலுவையில் உள்ளது</div>
+            <div class="grid-2">
+                <button class="btn-red" onclick="sendToAutoJS('LOGOUT')">EXIT</button>
+                <button class="btn-glow-blue" onclick="sendToAutoJS('CHECK_STATUS')">CHECK STATUS 🔄</button>
+            </div>
+            <button class="btn-glow-blue" style="margin-top:10px;" onclick="sendToAutoJS('SUPPORT')">💬 CONTACT ADMIN (TELEGRAM)</button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboardView" class="hidden">
+        <div class="admin-nav flex-between">
+            <div class="flex">
+                <div class="header-logo">⚡</div>
+                <div>
+                    <div style="font-weight:900; font-size:14px; color:#ffffff; letter-spacing:0.5px;">NURA <span style="color:#38bdf8;">AUTO CLICKER</span></div>
+                    <div style="color:#10b981; font-size:9px; font-weight:bold; display:flex; align-items:center; margin-top:2px;">
+                        <span class="dot dot-green" style="width:6px; height:6px;"></span> Database Connected
+                    </div>
+                </div>
+            </div>
+            <div id="updateBadge" class="badge-version flex" onclick="sendToAutoJS('UPDATE')">
+                <span id="updateDot" class="dot dot-green"></span>
+                <span id="updateTxt">V27.0 LATEST ✓</span>
+            </div>
+        </div>
+
+        <div class="card card-highlight flex-between" style="padding:10px 14px; margin-bottom:12px;">
+            <div class="flex">
+                <div style="font-size:20px; margin-right:10px;">⚡</div>
+                <div>
+                    <div style="font-weight:bold; color:#10b981; font-size:11px;">ULTRA SPEED ENGINE (1ms)</div>
+                    <div style="color:#94a3b8; font-size:9px;">Realtime Firebase Sync & Auto Protection</div>
+                </div>
+            </div>
+            <div style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:4px 8px; border-radius:8px; font-size:9px; font-weight:bold;">
+                100% READY
+            </div>
+        </div>
+
+        <div id="statusCard" class="card flex-between" style="padding: 16px 14px;">
+            <div>
+                <div class="flex" style="margin-bottom: 4px;">
+                    <span id="statusDot" class="dot dot-red"></span>
+                    <span style="color:#94a3b8; font-size:11px; font-weight:bold;">AUTO ACCEPT</span>
+                </div>
+                <div id="statusTxt" style="color:#e11d48; font-size:22px; font-weight:bold;">OFFLINE</div>
+                <div id="statusSub" style="color:#64748b; font-size:10px; margin-top: 4px;">Tap <span style="color:#10b981;">START</span> to begin auto-accepting orders</div>
+            </div>
+            <div id="startBtnBox" class="start-btn-container" onclick="sendToAutoJS('TOGGLE_START')">
+                <div id="startBtnLabel" style="font-size:14px; font-weight:bold; color:#fff;">START</div>
+                <div id="startBtnIcon" style="font-size:10px; color:#e11d48; margin-top:2px;">▶</div>
+            </div>
+        </div>
+
+        <div class="user-panel-card">
+            <div class="user-header flex-between">
+                <div class="flex">
+                    <div id="userAvatar" class="user-avatar">A</div>
+                    <div>
+                        <div id="userEmailTitle" style="font-weight:bold; font-size:13px; color:#ffffff;">arunbanuriya_gmail_com</div>
+                        <div id="userEmailSub" style="color:#38bdf8; font-size:10px;">arunbanuriya@gmail.com</div>
+                    </div>
+                </div>
+                <div id="userStatusBadge" class="badge-status badge-approved">APPROVED</div>
+            </div>
+
+            <div class="user-details-text" style="margin-bottom:12px;">
+                <div>Android ID : <span id="userAndroidId">bc43e1aca5aa8ce5</span></div>
+                <div>Vehicle Type : <span id="userVehicleTxt" style="color:#fbbf24; font-weight:bold;">🛺 Auto</span></div>
+                <div>Device Lock : <span style="color:#10b981; font-weight:bold;">🔒 LOCKED (1 Device)</span></div>
+            </div>
+
+            <div class="grid-3">
+                <div class="control-box">
+                    <div class="control-title">Area Filter</div>
+                    <div id="areaFilterPill" class="toggle-pill toggle-pill-on">
+                        <span id="areaText" class="toggle-text text-on">ON</span>
+                        <div id="areaKnob" class="toggle-knob knob-on"></div>
+                    </div>
+                </div>
+
+                <div class="control-box">
+                    <div class="control-title">Price Filter</div>
+                    <div id="priceFilterPill" class="toggle-pill toggle-pill-on">
+                        <span id="priceText" class="toggle-text text-on">ON</span>
+                        <div id="priceKnob" class="toggle-knob knob-on"></div>
+                    </div>
+                </div>
+
+                <div class="control-box">
+                    <div class="control-title">Status</div>
+                    <div id="statusFilterPill" class="toggle-pill toggle-pill-on">
+                        <span id="statusText" class="toggle-text text-on">ON</span>
+                        <div id="statusKnob" class="toggle-knob knob-on"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 12px;">
+            <div class="sub-card card" style="margin-bottom:0;">
+                <div class="flex-between" style="margin-bottom:6px;">
+                    <span style="color:#64748b; font-size:9px; font-weight:bold;">LAST ACCEPTED ORDER</span>
+                    <span id="lastTimeTxt" style="color:#38bdf8; font-size:9px;">🕒 --:--</span>
+                </div>
+                <div id="lastPriceTxt" style="font-size:22px; font-weight:bold; color:#ffffff; margin-bottom:4px;">₹ 0</div>
+                <div class="flex-between">
+                    <div style="color:#f43f5e; font-size:10px;">📍 Area: <span id="lastAreaTxt" style="color:#94a3b8;">None</span></div>
+                </div>
+            </div>
+            <div class="sub-card card" style="margin-bottom:0;">
+                <div style="color:#64748b; font-size:9px; font-weight:bold; margin-bottom:6px;">TODAY'S EARNINGS</div>
+                <div id="todayEarningsTxt" style="font-size:22px; font-weight:bold; color:#10b981; margin-bottom:4px;">₹ 0</div>
+                <div id="todayOrdersTxt" style="color:#38bdf8; font-size:10px; font-weight:bold;">0 Orders Completed</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="grid-2" style="margin-bottom: 12px;">
+                <div>
+                    <div style="color:#64748b; font-size:10px; font-weight:bold;">LICENSE STATUS</div>
+                    <div style="color:#10b981; font-size:15px; font-weight:bold; margin-top:2px;">APPROVED ✓</div>
+                    <div style="margin-top:10px;">
+                        <span style="color:#64748b; font-size:9px; font-weight:bold;">PLAN VALIDITY</span>
+                        <div id="validityDaysTxt" style="color:#ffffff; font-size:13px; font-weight:bold;">30 DAYS LEFT</div>
+                        <div class="progress-bar"><div class="progress-fill"></div></div>
+                        <div style="color:#64748b; font-size:9px;">EXPIRES ON: <span id="expiresOnTxt" style="color:#94a3b8;">--/--/----</span></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex" style="margin-bottom: 8px;">
+                        <div style="background:#1e293b; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:6px; font-size:12px;">👤</div>
+                        <div>
+                            <div style="color:#38bdf8; font-size:9px; font-weight:bold;">USER ACCOUNT</div>
+                            <div id="userEmailTxt" style="color:#ffffff; font-size:10px; word-break:break-all;">User</div>
+                        </div>
+                    </div>
+                    <div style="background:#0c1220; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+                        <div style="color:#38bdf8; font-size:9px; font-weight:bold;">PLAN</div>
+                        <div style="color:#c084fc; font-size:11px; font-weight:bold;">⭐ PREMIUM</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <button class="btn-glow-blue" onclick="showPlansView()">🚀 RENEW PLAN</button>
+                <button class="btn-glow-purple" onclick="showPlansView()">👑 MANAGE PLAN</button>
+            </div>
+        </div>
+
+        <div class="card" style="padding:10px;">
+            <div class="quick-action-item flex-between" style="margin-bottom:8px;" onclick="showFilterPage()">
+                <div class="flex">
+                    <span style="font-size:18px; margin-right:10px; color:#38bdf8;">🎛️</span>
+                    <div>
+                        <div style="font-weight:bold; color:#ffffff;">FILTER SETTINGS</div>
+                        <div style="color:#64748b; font-size:10px;">Price (<span id="summaryPrice">OFF</span>) & Area (<span id="summaryArea">OFF</span>)</div>
+                    </div>
+                </div>
+                <span style="color:#38bdf8; font-size:18px; font-weight:bold;">›</span>
+            </div>
+            <div class="grid-2">
+                <div class="quick-action-item flex" onclick="sendToAutoJS('SUPPORT')">
+                    <span style="font-size:16px; margin-right:8px;">🎧</span>
+                    <div>
+                        <div style="font-weight:bold; font-size:11px;">SUPPORT</div>
+                        <div style="color:#64748b; font-size:9px;">Telegram Admin</div>
+                    </div>
+                </div>
+                <div class="quick-action-item flex" onclick="sendToAutoJS('LOGOUT')">
+                    <span style="font-size:16px; margin-right:8px;">🚪</span>
+                    <div>
+                        <div style="font-weight:bold; font-size:11px; color:#f43f5e;">LOGOUT</div>
+                        <div style="color:#64748b; font-size:9px;">Secure Exit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active"><div style="font-size:16px;">🏠</div><div>Home</div></div>
+            <div class="nav-item"><div style="font-size:16px;">📊</div><div>Stats</div></div>
+            <div class="nav-item"><div style="font-size:16px;">🔔</div><div>Alerts</div></div>
+            <div class="nav-item"><div style="font-size:16px;">⚙️</div><div>Settings</div></div>
+        </div>
+    </div>
+
+    <!-- PLANS VIEW -->
+    <div id="plansView" class="hidden">
+        <button class="btn-glow-blue" style="margin-bottom: 12px; padding: 8px 14px;" onclick="showDashboardView()">⬅️ BACK TO DASHBOARD</button>
+        <div class="card" style="text-align: center; padding: 16px;">
+            <div style="background: rgba(16,185,129,0.1); width: 60px; height: 60px; border-radius: 50%; border: 1px solid #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 28px;">🛺</div>
+            <div style="font-size: 20px; font-weight: bold; color: #ffffff;">NURA <span style="color:#38bdf8;">AUTO CLICKER</span></div>
+            <div style="color:#38bdf8; font-size:11px; margin-top: 2px;">✦ Smart Auto Order Assistant ✦</div>
+            <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 12px; margin-top: 10px; color: #fbbf24; font-size: 11px; font-weight: bold;">👑 சிறந்த ஓட்டுநர்களுக்கான ஸ்மார்ட் உதவி!</div>
+        </div>
+        <div style="text-align: center; font-weight: bold; font-size: 14px; color: #ffffff; margin: 12px 0 10px; letter-spacing: 1px;">✦ SUBSCRIPTION PLANS ✦</div>
+        <div class="grid-3" style="margin-bottom: 14px;">
+            <div class="plan-card plan-card-green">
+                <div>
+                    <span class="plan-badge" style="background:#064e3b; color:#34d399;">பிளான் 1</span>
+                    <div class="plan-icon" style="background:rgba(16,185,129,0.2); color:#10b981;">🍸</div>
+                    <div style="font-weight:bold; font-size:12px; color:#fff;">அடிப்படை</div>
+                    <div style="color:#10b981; font-size:9px;">பிளான்</div>
+                    <div class="plan-feature-list">
+                        <div><span>✓</span> விலை ஃபில்டர்</div>
+                        <div><span>✓</span> ஏரியா ஃபில்டர்</div>
+                        <div><span>✓</span> டிரைவர் தொடர்புகள்</div>
+                        <div><span>✓</span> ஆர்டர் மேலாண்மை</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="color:#64748b; font-size:8px;">மாதத்திற்கு</div>
+                    <div style="font-size:16px; font-weight:bold; color:#10b981;">₹300</div>
+                    <button class="btn-green" style="width:100%; padding:6px; font-size:10px; margin-top:6px;" onclick="payPlan('Basic Plan', 300)">சேர்வு செய் ›</button>
+                </div>
+            </div>
+            <div class="plan-card plan-card-blue">
+                <div>
+                    <span class="plan-badge" style="background:#0c4a6e; color:#38bdf8;">பிளான் 2</span>
+                    <div class="plan-icon" style="background:rgba(2,132,199,0.2); color:#38bdf8;">📍</div>
+                    <div style="font-weight:bold; font-size:12px; color:#fff;">ஸ்டாண்டர்டு</div>
+                    <div style="color:#38bdf8; font-size:9px;">பிளான்</div>
+                    <div class="plan-feature-list">
+                        <div><span>✓</span> விலை ஃபில்டர்</div>
+                        <div><span>✓</span> ஏரியா ஃபில்டர்</div>
+                        <div><span>✓</span> டிரைவர் தொடர்புகள்</div>
+                        <div><span>✓</span> இடம் பகிர்வு</div>
+                        <div><span>✓</span> ஆர்டர் மேலாண்மை</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="color:#64748b; font-size:8px;">மாதத்திற்கு</div>
+                    <div style="font-size:16px; font-weight:bold; color:#38bdf8;">₹300</div>
+                    <button class="btn-glow-blue" style="padding:6px; font-size:10px; margin-top:6px;" onclick="payPlan('Standard Plan', 300)">சேர்வு செய் ›</button>
+                </div>
+            </div>
+            <div class="plan-card plan-card-purple">
+                <span class="best-choice-ribbon">⭐ சிறந்த தேர்வு</span>
+                <div>
+                    <span class="plan-badge" style="background:#581c87; color:#c084fc;">பிரிமியம்</span>
+                    <div class="plan-icon" style="background:rgba(168,85,247,0.2); color:#c084fc;">⭐</div>
+                    <div style="font-weight:bold; font-size:12px; color:#fff;">பிரிமியம்</div>
+                    <div style="color:#c084fc; font-size:9px;">பிளான்</div>
+                    <div class="plan-feature-list">
+                        <div><span>✓</span> விலை ஃபில்டர்</div>
+                        <div><span>✓</span> ஏரியா ஃபில்டர்</div>
+                        <div><span>✓</span> இடம் பகிர்வு</div>
+                        <div><span>✓</span> இணையற்ற ஆர்டர்</div>
+                        <div><span>✓</span> 24/7 ஆதரவு</div>
+                        <div><span>✓</span> முன்னுரிமை சேவை</div>
+                    </div>
+                </div>
+                <div>
+                    <div style="color:#64748b; font-size:8px;">மாதத்திற்கு</div>
+                    <div style="font-size:16px; font-weight:bold; color:#c084fc;">₹500</div>
+                    <button class="btn-glow-purple" style="padding:6px; font-size:10px; margin-top:6px;" onclick="payPlan('Premium Plan', 500)">சேர்வு செய் ›</button>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="text-align: center; padding: 10px;">
+            <div style="color:#94a3b8; font-size:10px; font-weight:bold; margin-bottom:6px;">🔒 பாதுகாப்பான கட்டணம் (UPI, Card & Wallet)</div>
+            <div>
+                <span class="upi-badge" style="background:#5f259f;">PhonePe</span>
+                <span class="upi-badge" style="background:#ffffff; color:#000;">G Pay</span>
+                <span class="upi-badge" style="background:#00baf2;">Paytm</span>
+                <span class="upi-badge" style="background:#008237;">UPI ▶</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER VIEW -->
+    <div id="filterView" class="hidden">
+        <div class="card card-highlight flex-between">
+            <div>
+                <div style="font-weight:bold; font-size:15px; color:#ffffff;">⚙️ ஃபில்டர் அமைப்புகள் (v27.0)</div>
+                <div style="color:#38bdf8; font-size:10px;">விலை மற்றும் ஏரியா தேர்வு செய்க</div>
+            </div>
+            <button class="btn-glow-blue" style="width:auto; padding:6px 14px;" onclick="showDashboardView()">⬅️ BACK</button>
+        </div>
+
+        <div class="card">
+            <label class="checkbox-container">
+                <input type="checkbox" id="usePriceCb" onclick="checkPriceCheckbox(this)">
+                <span style="font-weight:bold; color:#10b981; font-size:14px;">💰 விலை ஃபில்டர் பயன்படுத்தவும்</span>
+            </label>
+            <div class="grid-2" style="margin-top:10px;">
+                <div>
+                    <span style="color:#94a3b8; font-size:10px; font-weight:bold;">Min Price (₹):</span>
+                    <input type="number" id="minPriceInput" value="40">
+                </div>
+                <div>
+                    <span style="color:#94a3b8; font-size:10px; font-weight:bold;">Max Price (₹ Max 10000):</span>
+                    <input type="number" id="maxPriceInput" value="10000">
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border: 1px solid rgba(56, 189, 248, 0.2);">
+            <label class="checkbox-container">
+                <input type="checkbox" id="useSearchAreaCb" onclick="toggleSearchAreaCb(this)">
+                <span style="font-weight:bold; color:#38bdf8; font-size:14px;">🔍 ஏரியா பெயர் டைப் செய்து தேட (Search Area)</span>
+            </label>
+            <div style="margin-top:8px;">
+                <span style="color:#94a3b8; font-size:10px;">ஏரியா பெயர்கள் (கமா மூலம் பிரிக்கவும்):</span>
+                <input type="text" id="customAreaInput" placeholder="e.g. Saravanampatti,Thudiyalur">
+            </div>
+            <div style="color:#38bdf8; font-size:9px; margin-top:6px; line-height:1.4;">
+                * இது டிக் செய்யப்பட்டால் இந்த ஏரியாக்கள் மட்டுமே ஸ்கேன் செய்யப்படும் (மற்றவை புறக்கணிக்கப்படும்).
+            </div>
+        </div>
+
+        <div class="card" style="border: 1px solid rgba(245, 158, 11, 0.2);">
+            <label class="checkbox-container">
+                <input type="checkbox" id="useAreaCb" onclick="toggleAreaCb(this)">
+                <span style="font-weight:bold; color:#f59e0b; font-size:14px;">📍 ஏரியா ஃபில்டர் (Checkbox List)</span>
+            </label>
+            <div class="grid-2" style="margin:10px 0;">
+                <button class="btn-green" style="padding:8px; font-size:11px;" onclick="toggleAllAreas(true)">SELECT ALL (32)</button>
+                <button class="btn-red" style="padding:8px; font-size:11px;" onclick="toggleAllAreas(false)">CLEAR ALL</button>
+            </div>
+            <div id="areaContainer" style="max-height:180px; overflow-y:auto; border:1px solid #1e293b; padding:8px; border-radius:12px; background:#030712;"></div>
+        </div>
+
+        <button class="btn-green" style="width:100%; padding:14px; font-size:14px; margin-top:8px; box-shadow:0 0 15px rgba(16,185,129,0.4);" onclick="saveAndApplyFilters()">✓ SAVE AND APPLY FILTERS</button>
+    </div>
+
+    <script>
+        var areaList = [
+            "Saravanampatti", "Idikarai", "Thudiyalur", "Keeranatham", "Ganapathy", 
+            "Sanganoor", "Nallampalayam", "Chinnavedampatti", "Vellakinar", "Koundampalayam", 
+            "Rathinapuri", "Gn Mills", "SNS", "Murugan Nagar", "Periyanaikenpalayam", 
+            "Nayakkan Palyam", "Ganapathypudur", "Kalapatti", "Vellalore", "Nanjundapuram", 
+            "PSG", "R.S. Puram", "Sai Baba Colony", "Vadavalli", "Edayarpalayam", 
+            "Vilankurichi", "Kanuvai", "Pannimadai", "Gandhipuram", "Tatabad",
+            "Vedapatty", "Peelamedu"
+        ];
+        var serverAllowPrice = false;
+        var serverAllowArea = false;
+        var savedSelectedAreas = [];
+
+        function sendToAutoJS(act, data) {
+            var payload = { action: act, data: data || {} };
+            console.log("NATIVE_ACTION:" + JSON.stringify(payload));
+        }
+
+        function doLogin() {
+            var email = document.getElementById('emailInput').value.trim();
+            var pass = document.getElementById('passInput').value.trim();
+            if (!email || !pass) { alert("மின்னஞ்சல் மற்றும் பாஸ்வேர்டு தேவை!"); return; }
+            sendToAutoJS('LOGIN', { email: email, pass: pass });
+        }
+
+        function showRegisterPage() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('registerView').classList.remove('hidden');
+        }
+
+        function showLoginPage() {
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('loginView').classList.remove('hidden');
+        }
+
+        function doRegister() {
+            var email = document.getElementById('regEmailInput').value.trim();
+            var pass = document.getElementById('regPassInput').value.trim();
+            var vehicleType = document.getElementById('regVehicleInput').value;
+
+            if (!email || !pass) { alert("மின்னஞ்சல் மற்றும் பாஸ்வேர்டு தேவை!"); return; }
+            sendToAutoJS('REGISTER', { email: email, pass: pass, vehicleType: vehicleType });
+        }
+
+        function showFilterPage() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('waitView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('plansView').classList.add('hidden');
+            document.getElementById('filterView').classList.remove('hidden');
+            renderAreaList();
+        }
+
+        function showPlansView() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('waitView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('filterView').classList.add('hidden');
+            document.getElementById('plansView').classList.remove('hidden');
+        }
+
+        function showDashboardView() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('waitView').classList.add('hidden');
+            document.getElementById('filterView').classList.add('hidden');
+            document.getElementById('plansView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+        }
+
+        function payPlan(planName, amount) {
+            sendToAutoJS('PAY_PLAN', { planName: planName, amount: amount });
+        }
+
+        function checkPriceCheckbox(cb) {
+            if (!serverAllowPrice) {
+                cb.checked = false;
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+            }
+        }
+
+        function toggleSearchAreaCb(cb) {
+            if (!serverAllowArea) {
+                cb.checked = false;
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+                return;
+            }
+            if (cb.checked) {
+                document.getElementById('useAreaCb').checked = false;
+            }
+        }
+
+        function toggleAreaCb(cb) {
+            if (!serverAllowArea) {
+                cb.checked = false;
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+                return;
+            }
+            if (cb.checked) {
+                document.getElementById('useSearchAreaCb').checked = false;
+            }
+        }
+
+        function checkAreaCheckbox(cb) {
+            if (!serverAllowArea) {
+                cb.checked = false;
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+            }
+        }
+
+        function renderAreaList() {
+            var html = "";
+            for(var i=0; i<areaList.length; i++) {
+                var isChecked = savedSelectedAreas.indexOf(areaList[i]) !== -1 ? "checked" : "";
+                html += '<label class="checkbox-container"><input type="checkbox" class="area-checkbox" ' + isChecked + ' ' + (!serverAllowArea ? 'onclick="checkAreaListClick(event)"' : '') + ' value="' + areaList[i] + '"> ' + (i+1) + '. ' + areaList[i] + '</label>';
+            }
+            document.getElementById('areaContainer').innerHTML = html;
+        }
+
+        function checkAreaListClick(e) {
+            if (!serverAllowArea) {
+                e.preventDefault();
+                e.target.checked = false;
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+            }
+        }
+
+        function toggleAllAreas(status) {
+            if (!serverAllowArea && status) {
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+                return;
+            }
+            var cbs = document.querySelectorAll('.area-checkbox');
+            for(var i=0; i<cbs.length; i++) cbs[i].checked = status;
+        }
+
+        function saveAndApplyFilters() {
+            var priceChecked = document.getElementById('usePriceCb').checked;
+            var areaChecked = document.getElementById('useAreaCb').checked;
+            var searchAreaChecked = document.getElementById('useSearchAreaCb').checked;
+            var customSearchStr = document.getElementById('customAreaInput').value.trim();
+
+            if (priceChecked && !serverAllowPrice) {
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+                return;
+            }
+            if ((areaChecked || searchAreaChecked) && !serverAllowArea) {
+                sendToAutoJS('SHOW_TOAST', "இந்த வசதி உங்க பிளானில் இல்லை! அட்மினைத் தொடர்புகொள்ளவும்.");
+                return;
+            }
+
+            var minP = document.getElementById('minPriceInput').value;
+            var maxP = document.getElementById('maxPriceInput').value;
+            var selAreas = [];
+            var cbs = document.querySelectorAll('.area-checkbox');
+            for(var i=0; i<cbs.length; i++) {
+                if(cbs[i].checked) selAreas.push(cbs[i].value);
+            }
+            savedSelectedAreas = selAreas;
+
+            sendToAutoJS('SAVE_FILTERS', {
+                usePriceFilter: priceChecked,
+                useAreaFilter: areaChecked,
+                useSearchAreaFilter: searchAreaChecked,
+                customAreaSearchStr: customSearchStr,
+                minPrice: parseInt(minP) || 40,
+                maxPrice: parseInt(maxP) || 10000,
+                selectedAreas: selAreas
+            });
+            showDashboardView();
+        }
+
+        function updatePillState(pillId, textId, knobId, isOn) {
+            var pill = document.getElementById(pillId);
+            var text = document.getElementById(textId);
+            var knob = document.getElementById(knobId);
+
+            if (pill && text && knob) {
+                if (isOn) {
+                    pill.className = "toggle-pill toggle-pill-on";
+                    text.className = "toggle-text text-on";
+                    text.innerText = "ON";
+                    knob.className = "toggle-knob knob-on";
+                } else {
+                    pill.className = "toggle-pill toggle-pill-off";
+                    text.className = "toggle-text text-off";
+                    text.innerText = "OFF";
+                    knob.className = "toggle-knob knob-off";
+                }
+            }
+        }
+
+        function updateDashboard(data) {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('registerView').classList.add('hidden');
+            document.getElementById('waitView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('plansView').classList.add('hidden');
+            document.getElementById('filterView').classList.add('hidden');
+
+            serverAllowPrice = data.allowPrice;
+            serverAllowArea = data.allowArea;
+
+            if (data.minPrice) document.getElementById('minPriceInput').value = data.minPrice;
+            if (data.maxPrice) document.getElementById('maxPriceInput').value = data.maxPrice;
+            if (data.selectedAreas) savedSelectedAreas = data.selectedAreas;
+            if (data.customAreaSearchStr !== undefined) document.getElementById('customAreaInput').value = data.customAreaSearchStr;
+
+            document.getElementById('usePriceCb').checked = serverAllowPrice && data.usePriceFilter;
+            document.getElementById('useAreaCb').checked = serverAllowArea && data.useAreaFilter;
+            document.getElementById('useSearchAreaCb').checked = serverAllowArea && data.useSearchAreaFilter;
+
+            var summaryText = "OFF";
+            if (serverAllowArea && data.useSearchAreaFilter && data.customAreaSearchStr) {
+                summaryText = "🔍 Search: " + data.customAreaSearchStr;
+            } else if (serverAllowArea && data.useAreaFilter) {
+                summaryText = "📍 " + (data.selectedAreas ? data.selectedAreas.length : 0) + ' Selected';
+            }
+
+            document.getElementById('summaryPrice').innerText = (serverAllowPrice && data.usePriceFilter) ? ('₹ ' + data.minPrice + ' - ₹ ' + data.maxPrice) : 'OFF';
+            document.getElementById('summaryArea').innerText = summaryText;
+
+            setUpdateBadge(data.hasUpdate, data.updateTxt);
+
+            if (data.view === 'LOGIN') {
+                document.getElementById('loginView').classList.remove('hidden');
+            } else if (data.view === 'REGISTER') {
+                document.getElementById('registerView').classList.remove('hidden');
+            } else if (data.view === 'WAIT') {
+                document.getElementById('waitView').classList.remove('hidden');
+            } else {
+                document.getElementById('dashboardView').classList.remove('hidden');
+                
+                if (data.email) {
+                    var emailStr = data.email;
+                    var keyStr = emailStr.replace(/[^a-zA-Z0-9]/g, '_');
+                    document.getElementById('userEmailTxt').innerText = emailStr;
+                    document.getElementById('userEmailTitle').innerText = keyStr;
+                    document.getElementById('userEmailSub').innerText = emailStr;
+                    document.getElementById('userAvatar').innerText = emailStr.charAt(0).toUpperCase();
+                }
+
+                if (data.vehicleType) {
+                    var vIcon = "🛺 Auto";
+                    if (data.vehicleType === "Bike") vIcon = "🏍️ Bike";
+                    if (data.vehicleType === "Cab") vIcon = "🚗 Cab (Car)";
+                    document.getElementById('userVehicleTxt').innerText = vIcon;
+                }
+
+                if (data.androidId) {
+                    document.getElementById('userAndroidId').innerText = data.androidId;
+                }
+
+                if (data.daysLeft) document.getElementById('validityDaysTxt').innerText = data.daysLeft;
+                if (data.expiresOn) document.getElementById('expiresOnTxt').innerText = data.expiresOn;
+                if (data.lastPrice) document.getElementById('lastPriceTxt').innerText = data.lastPrice;
+                if (data.lastArea) document.getElementById('lastAreaTxt').innerText = data.lastArea;
+                if (data.lastTime) document.getElementById('lastTimeTxt').innerText = '🕒 ' + data.lastTime;
+
+                if (data.todayEarnings) document.getElementById('todayEarningsTxt').innerText = data.todayEarnings;
+                if (data.todayOrdersCount) document.getElementById('todayOrdersTxt').innerText = data.todayOrdersCount;
+
+                updatePillState('areaFilterPill', 'areaText', 'areaKnob', data.allowArea);
+                updatePillState('priceFilterPill', 'priceText', 'priceKnob', data.allowPrice);
+                
+                var isApproved = (data.status === "APPROVED" || data.status === "SUCCESS" || data.status === "OK");
+                updatePillState('statusFilterPill', 'statusText', 'statusKnob', isApproved);
+
+                var userStatusBadge = document.getElementById('userStatusBadge');
+                if (userStatusBadge) {
+                    if (isApproved) {
+                        userStatusBadge.className = "badge-status badge-approved";
+                        userStatusBadge.innerText = "APPROVED";
+                    } else {
+                        userStatusBadge.className = "badge-status badge-pending";
+                        userStatusBadge.innerText = data.status || "PENDING";
+                    }
+                }
+
+                var statusTxt = document.getElementById('statusTxt');
+                var statusDot = document.getElementById('statusDot');
+                var statusSub = document.getElementById('statusSub');
+                var startBtnBox = document.getElementById('startBtnBox');
+                var startBtnLabel = document.getElementById('startBtnLabel');
+                var startBtnIcon = document.getElementById('startBtnIcon');
+
+                if (data.isRunning) {
+                    statusTxt.innerText = "ONLINE";
+                    statusTxt.style.color = "#10b981";
+                    statusDot.className = "dot dot-green";
+                    statusSub.innerText = "Scanning for rides 24/7";
+                    startBtnBox.className = "start-btn-container start-btn-running";
+                    startBtnLabel.innerText = "STOP";
+                    startBtnIcon.innerText = "■";
+                    startBtnIcon.style.color = "#10b981";
+                } else {
+                    statusTxt.innerText = "OFFLINE";
+                    statusTxt.style.color = "#e11d48";
+                    statusDot.className = "dot dot-red";
+                    statusSub.innerText = "Tap START to begin auto-accepting orders";
+                    startBtnBox.className = "start-btn-container";
+                    startBtnLabel.innerText = "START";
+                    startBtnIcon.innerText = "▶";
+                    startBtnIcon.style.color = "#e11d48";
+                }
+            }
+        }
+
+        function setUpdateBadge(hasUpdate, txt) {
+            var badge = document.getElementById('updateBadge');
+            var dot = document.getElementById('updateDot');
+            var label = document.getElementById('updateTxt');
+            if (badge && dot && label) {
+                if (hasUpdate) {
+                    badge.className = "badge-version badge-version-update flex";
+                    dot.className = "dot dot-red";
+                    label.innerText = txt || "UPDATE 🚀";
+                } else {
+                    badge.className = "badge-version flex";
+                    dot.className = "dot dot-green";
+                    label.innerText = txt || "V27.0 LATEST ✓";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
